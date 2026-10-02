@@ -17,7 +17,35 @@ function gaia_biblio_shortcode( $atts ) {
 
 	$references = gaia_biblio_get_references( $atts['auteur'] );
 
-	return '<pre>' . esc_html( print_r( $references, true ) ) . '</pre>';
+		if ( empty( $references ) ) {
+		return '<p>Aucune référence trouvée.</p>';
+	}
+
+	$html = '<ul class="gaia-biblio">';
+
+	foreach ( $references as $reference ) {
+		$html .= '<li>';
+		$html .= '<strong>' . esc_html( $reference['annee'] ) . '</strong> — ';
+		$html .= esc_html( $reference['titre'] ) . '<br>';
+		$html .= esc_html( $reference['auteur'] );
+
+		if ( '' !== $reference['journal'] ) {
+			$html .= ', <em>' . esc_html( $reference['journal'] ) . '</em>';
+		}
+		if ( '' !== $reference['volume'] ) {
+			$html .= ', n° ' . esc_html( $reference['volume'] );
+		}
+		if ( '' !== $reference['pages'] ) {
+			$html .= ', p. ' . esc_html( $reference['pages'] );
+		}
+
+		$html .= '</li>';
+	}
+
+	$html .= '</ul>';
+
+	return $html;
+
 }
 function gaia_biblio_get_references( $auteur ) {
 	$url = add_query_arg(
