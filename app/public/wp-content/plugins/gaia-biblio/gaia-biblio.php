@@ -15,7 +15,32 @@ function gaia_biblio_shortcode( $atts ) {
 		return '<p>Précisez un auteur : [gaia_biblio auteur="..."]</p>';
 	}
 
-	return '<p>Bibliographie de ' . esc_html( $atts['auteur'] ) . '</p>';
+	$references = gaia_biblio_get_references( $atts['auteur'] );
+
+	return '<pre>' . esc_html( print_r( $references, true ) ) . '</pre>';
 }
+function gaia_biblio_get_references( $auteur ) {
+	$url = add_query_arg(
+		array(
+			'do'     => 'get_biblio_inv',
+			'key'    => 'fea9a667df9db40499ebf94e5b6a07f6',
+			'auteur' => $auteur,
+		),
+		'https://gaia.oec.fr/getdata.php'
+	);
+
+	$response = wp_remote_get( $url, array( 'timeout' => 15 ) );
+	if ( is_wp_error( $response ) ) {
+		return array();
+	}
+
+	$body = json_decode( wp_remote_retrieve_body( $response ), true );
+	if ( ! isset( $body['result']['data'] ) ) {
+		return array();
+	}
+
+	return $body['result']['data'];
+}
+
 
 add_shortcode( 'gaia_biblio', 'gaia_biblio_shortcode' );
